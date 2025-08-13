@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Joia {
+  id                  Int       @id @default(autoincrement())
+  nome                String
+  remessaId           Int
+  descricao           String?
+  preco               Int
+  categoriaId         Int
+  status              String
+  quantidadeEstoque   Int
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  remessa             RemessaDeJoias @relation(fields: [remessaId], references: [id])
+  categoria           Categoria @relation(fields: [categoriaId], references: [id])
+  imagens             ImagemJoia[]
+  historicoEstoque    HistoricoEstoque[]
+  itensVenda          ItemVenda[]
+}
+
+model ImagemJoia {
+  id          Int       @id @default(autoincrement())
+  joiaId      Int
+  imagem      String
+  tipoImagem  String?
+  descricao   String?
+  createdAt   DateTime  @default(now())
+  joia        Joia      @relation(fields: [joiaId], references: [id])
+}
+
+model HistoricoEstoque {
+  id              Int       @id @default(autoincrement())
+  joiaId          Int
+  tipoMovimentacao String
+  quantidade      Int
+  motivo          String?
+  dataMovimentacao DateTime
+  createdAt       DateTime  @default(now())
+  joia            Joia      @relation(fields: [joiaId], references: [id])
+}
+
+model Categoria {
+  id          Int       @id @default(autoincrement())
+  nome        String    @unique
+  descricao   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  joias       Joia[]
+}
+
+model Cliente {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  telefone    String?
+  email       String    @unique
+  endereco    String?
+  observacoes String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  vendas      Venda[]
+  pagamentos  Pagamento[]
+}
+
+model Venda {
+  id              Int       @id @default(autoincrement())
+  clienteId       Int
+  valorTotal      Int
+  valorPago       Int
+  statusPagamento String
+  comissao        Int
+  valorEmpresa    Int
+  dataVenda       String // Keeping as String as per your schema, consider DateTime for better handling
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  cliente         Cliente   @relation(fields: [clienteId], references: [id])
+  itensVenda      ItemVenda[]
+  pagamentos      Pagamento[]
+}
+
+model ItemVenda {
+  id          Int       @id @default(autoincrement())
+  vendaId     Int
+  joiaId      Int
+  quantidade  Int
+  precoUnitario Int
+  desconto    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  venda       Venda     @relation(fields: [vendaId], references: [id])
+  joia        Joia      @relation(fields: [joiaId], references: [id])
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  email       String    @unique
+  password    String
+  role        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Pagamento {
+  id            Int       @id @default(autoincrement())
+  vendaId       Int
+  clienteId     Int // Redundant as per analysis, but keeping as per your schema. Consider removing.
+  valorPago     Int
+  formaPagamento String
+  dataPagamento DateTime
+  observacoes   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  venda         Venda     @relation(fields: [vendaId], references: [id])
+  cliente       Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+model RemessaDeJoias {
+  id                Int       @id @default(autoincrement())
+  qntd_de_joias     Int
+  preco_final       Int
+  nome              String
+  data_de_entreda   DateTime
+  data_de_devolucao DateTime?
+  joias             Joia[]
+}
