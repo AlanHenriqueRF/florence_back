@@ -2,10 +2,9 @@ import express, { Request, Response, json, Express } from 'express';
 import cors from 'cors';
 import { connectDb, disconnectDB } from './config/database';
 import { loadEnv } from './config/envs';
-import dotenv from 'dotenv';
+import clientesRoutes from './routes/clientes.routes';
 
 loadEnv();
-//dotenv.config()
 
 const app = express();
 app
@@ -17,6 +16,7 @@ app
   .get('/health', async (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok', database: 'connected' });
   })
+  .use('/cliente', clientesRoutes)
 
 export function init(): Promise<Express> {
   connectDb();
