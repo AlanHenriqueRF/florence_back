@@ -4,7 +4,7 @@ import { clienteController } from "../controllers/clientes.controller";
 const clientesRoutes = Router();
 
 clientesRoutes.post("/", clienteController.createCliente);
-clientesRoutes.get("/all", clienteController.getAllClientes);
+clientesRoutes.get("/", clienteController.getAllClientes);
 
 
 export default clientesRoutes;
